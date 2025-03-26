@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 
 interface AudioPlayerProps {
   audioUrl: string | null;
@@ -21,6 +22,25 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<number | null>(null);
   const [activeSubtitles, setActiveSubtitles] = useState(true);
+  
+  // For synchronized subtitles
+  const [subtitleSegments, setSubtitleSegments] = useState<string[]>([]);
+  const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
+  const subtitlesContainerRef = useRef<HTMLDivElement>(null);
+
+  // Process subtitles into segments
+  useEffect(() => {
+    if (subtitles) {
+      // Split text into sentences or segments
+      const segments = subtitles
+        .replace(/([.!?])\s+/g, "$1\n")
+        .split('\n')
+        .filter(segment => segment.trim().length > 0);
+      
+      setSubtitleSegments(segments);
+      setCurrentSegmentIndex(0);
+    }
+  }, [subtitles]);
 
   useEffect(() => {
     if (audioUrl) {
@@ -30,6 +50,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       }
       setIsPlaying(false);
       setProgress(0);
+      setCurrentSegmentIndex(0);
     }
 
     return () => {
@@ -43,7 +64,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.play();
-        intervalRef.current = window.setInterval(updateProgress, 1000);
+        intervalRef.current = window.setInterval(updateProgress, 100); // More frequent updates for smoother subtitle sync
       } else {
         audioRef.current.pause();
         if (intervalRef.current) {
@@ -63,6 +84,28 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (audioRef.current) {
       setProgress(audioRef.current.currentTime);
       setDuration(audioRef.current.duration);
+      
+      // Update subtitle segment based on progress
+      if (subtitleSegments.length > 0) {
+        // Simple approach: change segment every few seconds
+        const segmentDuration = audioRef.current.duration / subtitleSegments.length;
+        const newSegmentIndex = Math.min(
+          Math.floor(audioRef.current.currentTime / segmentDuration),
+          subtitleSegments.length - 1
+        );
+        
+        if (newSegmentIndex !== currentSegmentIndex) {
+          setCurrentSegmentIndex(newSegmentIndex);
+          
+          // Scroll the active segment into view
+          if (subtitlesContainerRef.current) {
+            const segments = subtitlesContainerRef.current.querySelectorAll('.subtitle-segment');
+            if (segments[newSegmentIndex]) {
+              segments[newSegmentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        }
+      }
     }
   };
 
@@ -134,8 +177,23 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       </div>
       
       {subtitles && activeSubtitles && (
-        <div className="mb-3 p-3 bg-gray-100 rounded-md text-sm text-gray-700 max-h-32 overflow-y-auto">
-          {subtitles}
+        <div className="mb-3">
+          <ScrollArea className="h-32 rounded-md border p-2 bg-gray-50">
+            <div ref={subtitlesContainerRef} className="px-1">
+              {subtitleSegments.map((segment, index) => (
+                <p 
+                  key={index} 
+                  className={`subtitle-segment py-1 transition-colors ${
+                    index === currentSegmentIndex 
+                      ? 'bg-podcast-light font-medium text-podcast-accent rounded px-1' 
+                      : 'text-gray-600'
+                  }`}
+                >
+                  {segment}
+                </p>
+              ))}
+            </div>
+          </ScrollArea>
         </div>
       )}
       
