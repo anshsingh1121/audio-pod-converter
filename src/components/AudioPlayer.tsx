@@ -6,14 +6,21 @@ interface AudioPlayerProps {
   audioUrl: string | null;
   fileName: string;
   isLoading?: boolean;
+  subtitles?: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, fileName, isLoading = false }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ 
+  audioUrl, 
+  fileName, 
+  isLoading = false,
+  subtitles = ''
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<number | null>(null);
+  const [activeSubtitles, setActiveSubtitles] = useState(true);
 
   useEffect(() => {
     if (audioUrl) {
@@ -97,6 +104,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, fileName, isLoading
     }
   };
 
+  const toggleSubtitles = () => {
+    setActiveSubtitles(!activeSubtitles);
+  };
+
   if (!audioUrl && !isLoading) {
     return null;
   }
@@ -112,7 +123,21 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, fileName, isLoading
           <span className="text-white text-xs">AI</span>
         </div>
         <h3 className="font-medium text-gray-800 truncate">{fileName}</h3>
+        {subtitles && (
+          <button 
+            onClick={toggleSubtitles} 
+            className={`ml-auto text-xs px-2 py-1 rounded ${activeSubtitles ? 'bg-podcast-accent text-white' : 'bg-gray-200 text-gray-600'}`}
+          >
+            CC
+          </button>
+        )}
       </div>
+      
+      {subtitles && activeSubtitles && (
+        <div className="mb-3 p-3 bg-gray-100 rounded-md text-sm text-gray-700 max-h-32 overflow-y-auto">
+          {subtitles}
+        </div>
+      )}
       
       <div className="mb-3">
         <div className="slider-track">

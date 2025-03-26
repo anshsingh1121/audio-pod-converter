@@ -85,10 +85,10 @@ const Index = () => {
     }
   };
 
-  // Get the active file name for the audio player
-  const activeFileName = activeFileId 
-    ? files.find(file => file.id === activeFileId)?.name || 'Audio' 
-    : 'Audio';
+  // Get the active file for the audio player
+  const activeFile = activeFileId ? files.find(file => file.id === activeFileId) : null;
+  const activeFileName = activeFile?.name || 'Audio';
+  const activeContent = activeFile?.content || '';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-podcast-light">
@@ -113,6 +113,7 @@ const Index = () => {
             audioUrl={audioUrl} 
             fileName={activeFileName}
             isLoading={isConverting}
+            subtitles={activeContent}
           />
         </main>
       </div>
