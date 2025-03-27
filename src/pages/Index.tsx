@@ -103,12 +103,6 @@ const Index = () => {
             onFileUpload={handleFileUpload}
           />
           
-          <div className="text-fade-in my-8 px-4 text-gray-700">
-            <p className="mb-2">Greetings, customer. You have selected the option for a sneaker return. Please provide your order number.</p>
-            <p className="mb-2">Thank you. Verifying order.</p>
-            <p className="mb-4">Your return request has been processed successfully. The sneakers will be returned to our warehouse. A refund will be issued to your original payment method within 5 to 7 business days.</p>
-          </div>
-          
           <AudioPlayer 
             audioUrl={audioUrl} 
             fileName={activeFileName}
