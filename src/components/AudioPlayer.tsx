@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
+import { toast } from "sonner";
 
 interface AudioPlayerProps {
   audioUrl: string | null;
@@ -44,13 +44,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   useEffect(() => {
     if (audioUrl) {
+      console.log("Setting audio source to:", audioUrl);
       if (audioRef.current) {
         audioRef.current.src = audioUrl;
         audioRef.current.load();
+        
+        // Reset player state
+        setIsPlaying(false);
+        setProgress(0);
+        setCurrentSegmentIndex(0);
       }
-      setIsPlaying(false);
-      setProgress(0);
-      setCurrentSegmentIndex(0);
     }
 
     return () => {
@@ -63,8 +66,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        audioRef.current.play();
-        intervalRef.current = window.setInterval(updateProgress, 100); // More frequent updates for smoother subtitle sync
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Audio playback failed:", error);
+            setIsPlaying(false);
+          });
+        }
+        intervalRef.current = window.setInterval(updateProgress, 100);
       } else {
         audioRef.current.pause();
         if (intervalRef.current) {
@@ -157,8 +166,18 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   return (
     <div className="w-full max-w-md mx-auto mt-6 bg-white rounded-lg p-4 shadow-sm animate-slide-up" style={{ animationDelay: '0.5s' }}>
-      <audio ref={audioRef} onEnded={() => setIsPlaying(false)} onLoadedMetadata={updateProgress}>
+      <audio 
+        ref={audioRef} 
+        onEnded={() => setIsPlaying(false)} 
+        onLoadedMetadata={updateProgress}
+        onError={(e) => {
+          console.error("Audio error:", e);
+          toast.error("Failed to load audio file. Please check the URL and try again.");
+          setIsPlaying(false);
+        }}
+      >
         <source src={audioUrl || ''} type="audio/mpeg" />
+        Your browser does not support the audio element.
       </audio>
       
       <div className="flex items-center mb-3">
