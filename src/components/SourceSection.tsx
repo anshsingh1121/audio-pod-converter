@@ -2,6 +2,7 @@
 import React from 'react';
 import FileItem from './FileItem';
 import UploadButton from './UploadButton';
+import AudioUrlInput from './AudioUrlInput';
 
 interface SourceFile {
   id: string;
@@ -14,13 +15,15 @@ interface SourceSectionProps {
   activeFileId: string | null;
   onFileSelect: (fileId: string) => void;
   onFileUpload: (file: File) => void;
+  onAddAudioUrl?: (url: string, name: string) => void;
 }
 
 const SourceSection: React.FC<SourceSectionProps> = ({
   files,
   activeFileId,
   onFileSelect,
-  onFileUpload
+  onFileUpload,
+  onAddAudioUrl
 }) => {
   return (
     <section className="mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -43,6 +46,7 @@ const SourceSection: React.FC<SourceSectionProps> = ({
           )}
         </div>
         <UploadButton onFileSelect={onFileUpload} />
+        {onAddAudioUrl && <AudioUrlInput onAddAudio={onAddAudioUrl} />}
       </div>
     </section>
   );

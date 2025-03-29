@@ -98,6 +98,33 @@ const Index = () => {
     }
   };
 
+  const handleAddAudioUrl = (url: string, name: string) => {
+    try {
+      // Validate the URL (simple check)
+      new URL(url); // This will throw if URL is invalid
+      
+      // Create a new audio file entry
+      const newFile: SourceFile = {
+        id: Date.now().toString(),
+        name: name,
+        content: `External audio from ${url}`,
+        audioUrl: url
+      };
+      
+      // Add to files list
+      setFiles(prevFiles => [...prevFiles, newFile]);
+      
+      // Select the new file
+      setActiveFileId(newFile.id);
+      setAudioUrl(url);
+      
+      toast.success(`Added "${name}" successfully!`);
+    } catch (error) {
+      console.error('Invalid URL:', error);
+      toast.error('Please enter a valid audio URL');
+    }
+  };
+
   // Get the active file for the audio player
   const activeFile = activeFileId ? files.find(file => file.id === activeFileId) : null;
   const activeFileName = activeFile?.name || 'Audio';
@@ -114,6 +141,7 @@ const Index = () => {
             activeFileId={activeFileId}
             onFileSelect={handleFileSelect}
             onFileUpload={handleFileUpload}
+            onAddAudioUrl={handleAddAudioUrl}
           />
           
           <AudioPlayer 
