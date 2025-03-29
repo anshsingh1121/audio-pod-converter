@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { toast } from "sonner";
 
 import Header from '../components/Header';
@@ -26,6 +27,17 @@ const Index = () => {
   const [activeFileId, setActiveFileId] = useState<string | null>('1');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
+
+  // Get the most recently added audio file (if any)
+  useEffect(() => {
+    // Find the last file with an audioUrl
+    const audioFiles = files.filter(file => file.audioUrl);
+    if (audioFiles.length > 0) {
+      const lastAudioFile = audioFiles[audioFiles.length - 1];
+      setActiveFileId(lastAudioFile.id);
+      setAudioUrl(lastAudioFile.audioUrl || null);
+    }
+  }, [files.length]); // Only run when the files array changes length
 
   const handleFileSelect = async (fileId: string) => {
     setActiveFileId(fileId);
