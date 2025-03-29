@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { toast } from "sonner";
 
@@ -11,11 +10,18 @@ interface SourceFile {
   id: string;
   name: string;
   content: string;
+  audioUrl?: string;
 }
 
 const Index = () => {
   const [files, setFiles] = useState<SourceFile[]>([
-    { id: '1', name: 'AI PODCAST', content: 'This is a sample podcast about artificial intelligence.' }
+    { id: '1', name: 'AI PODCAST', content: 'This is a sample podcast about artificial intelligence.' },
+    { 
+      id: '2', 
+      name: 'DEMO AUDIO', 
+      content: 'This is a demo audio file with pre-loaded content.',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+    }
   ]);
   const [activeFileId, setActiveFileId] = useState<string | null>('1');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -28,7 +34,14 @@ const Index = () => {
     const selectedFile = files.find(file => file.id === fileId);
     if (!selectedFile) return;
     
-    // Start conversion
+    // If file has a predefined audioUrl, use it directly
+    if (selectedFile.audioUrl) {
+      setIsConverting(false);
+      setAudioUrl(selectedFile.audioUrl);
+      return;
+    }
+    
+    // Otherwise proceed with conversion
     setIsConverting(true);
     setAudioUrl(null);
     
