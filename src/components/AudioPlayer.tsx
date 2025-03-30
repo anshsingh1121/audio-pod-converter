@@ -1,7 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
-import { toast } from "sonner";
 
 interface AudioPlayerProps {
   audioUrl: string | null;
@@ -23,12 +23,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const intervalRef = useRef<number | null>(null);
   const [activeSubtitles, setActiveSubtitles] = useState(true);
   
+  // For synchronized subtitles
   const [subtitleSegments, setSubtitleSegments] = useState<string[]>([]);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const subtitlesContainerRef = useRef<HTMLDivElement>(null);
 
+  // Process subtitles into segments
   useEffect(() => {
     if (subtitles) {
+      // Split text into sentences or segments
       const segments = subtitles
         .replace(/([.!?])\s+/g, "$1\n")
         .split('\n')
@@ -41,21 +44,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   useEffect(() => {
     if (audioUrl) {
-      console.log("Setting audio source to:", audioUrl);
       if (audioRef.current) {
-        try {
-          const cleanUrl = audioUrl.trim();
-          audioRef.current.src = cleanUrl;
-          audioRef.current.load();
-          
-          setIsPlaying(false);
-          setProgress(0);
-          setCurrentSegmentIndex(0);
-        } catch (error) {
-          console.error("Error setting audio source:", error);
-          toast.error("Failed to set audio source");
-        }
+        audioRef.current.src = audioUrl;
+        audioRef.current.load();
       }
+      setIsPlaying(false);
+      setProgress(0);
+      setCurrentSegmentIndex(0);
     }
 
     return () => {
@@ -68,15 +63,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Audio playback failed:", error);
-            toast.error("Failed to play audio. Please check the URL format.");
-            setIsPlaying(false);
-          });
-        }
-        intervalRef.current = window.setInterval(updateProgress, 100);
+        audioRef.current.play();
+        intervalRef.current = window.setInterval(updateProgress, 100); // More frequent updates for smoother subtitle sync
       } else {
         audioRef.current.pause();
         if (intervalRef.current) {
@@ -97,7 +85,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       setProgress(audioRef.current.currentTime);
       setDuration(audioRef.current.duration);
       
+      // Update subtitle segment based on progress
       if (subtitleSegments.length > 0) {
+        // Simple approach: change segment every few seconds
         const segmentDuration = audioRef.current.duration / subtitleSegments.length;
         const newSegmentIndex = Math.min(
           Math.floor(audioRef.current.currentTime / segmentDuration),
@@ -107,6 +97,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         if (newSegmentIndex !== currentSegmentIndex) {
           setCurrentSegmentIndex(newSegmentIndex);
           
+          // Scroll the active segment into view
           if (subtitlesContainerRef.current) {
             const segments = subtitlesContainerRef.current.querySelectorAll('.subtitle-segment');
             if (segments[newSegmentIndex]) {
@@ -166,22 +157,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   return (
     <div className="w-full max-w-md mx-auto mt-6 bg-white rounded-lg p-4 shadow-sm animate-slide-up" style={{ animationDelay: '0.5s' }}>
-      <audio 
-        ref={audioRef} 
-        onEnded={() => setIsPlaying(false)} 
-        onLoadedMetadata={updateProgress}
-        onError={(e) => {
-          console.error("Audio error:", e);
-          toast.error("Failed to load audio file. Please check the URL and try again.");
-          setIsPlaying(false);
-        }}
-        preload="metadata"
-      >
+      <audio ref={audioRef} onEnded={() => setIsPlaying(false)} onLoadedMetadata={updateProgress}>
         <source src={audioUrl || ''} type="audio/mpeg" />
-        <source src={audioUrl || ''} type="audio/mp3" />
-        <source src={audioUrl || ''} type="audio/wav" />
-        <source src={audioUrl || ''} type="audio/ogg" />
-        Your browser does not support the audio element.
       </audio>
       
       <div className="flex items-center mb-3">
