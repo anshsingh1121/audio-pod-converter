@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { toast } from "sonner";
 
@@ -28,13 +27,19 @@ const Index = () => {
   const [isConverting, setIsConverting] = useState(false);
 
   useEffect(() => {
+    const demoFile = files.find(file => file.id === '2');
+    if (demoFile?.audioUrl) {
+      setActiveFileId('2');
+      setAudioUrl(demoFile.audioUrl);
+    }
+    
     const audioFiles = files.filter(file => file.audioUrl);
     if (audioFiles.length > 0) {
       const lastAudioFile = audioFiles[audioFiles.length - 1];
       setActiveFileId(lastAudioFile.id);
       setAudioUrl(lastAudioFile.audioUrl || null);
     }
-  }, [files.length]);
+  }, [files]);
 
   const handleFileSelect = async (fileId: string) => {
     setActiveFileId(fileId);

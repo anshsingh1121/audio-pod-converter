@@ -23,11 +23,10 @@ export const convertTextToSpeech = async (text: string): Promise<ConversionResul
     // const data = await response.json();
     // return data;
     
-    // Instead, we're returning a mock success for demo purposes
-    // with a sample MP3 URL (you'd need to replace this with an actual audio file)
+    // Instead, we're returning a demo audio from Google Drive
     return {
       success: true,
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+      audioUrl: 'https://drive.google.com/uc?export=download&id=150-O1iKysYz9VGVfojgCm8-M6sLl-oDT'
     };
   } catch (error) {
     console.error('Error converting text to speech:', error);
