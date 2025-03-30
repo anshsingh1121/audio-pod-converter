@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { toast } from "sonner";
 
@@ -16,7 +15,6 @@ interface SourceFile {
 
 const Index = () => {
   const [files, setFiles] = useState<SourceFile[]>([
-    { id: '1', name: 'AI PODCAST', content: 'This is a sample podcast about artificial intelligence.' },
     { 
       id: '2', 
       name: 'DEMO AUDIO', 
@@ -24,36 +22,31 @@ const Index = () => {
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
     }
   ]);
-  const [activeFileId, setActiveFileId] = useState<string | null>('1');
+  const [activeFileId, setActiveFileId] = useState<string | null>('2');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
 
-  // Get the most recently added audio file (if any)
   useEffect(() => {
-    // Find the last file with an audioUrl
     const audioFiles = files.filter(file => file.audioUrl);
     if (audioFiles.length > 0) {
       const lastAudioFile = audioFiles[audioFiles.length - 1];
       setActiveFileId(lastAudioFile.id);
       setAudioUrl(lastAudioFile.audioUrl || null);
     }
-  }, [files.length]); // Only run when the files array changes length
+  }, [files.length]);
 
   const handleFileSelect = async (fileId: string) => {
     setActiveFileId(fileId);
     
-    // Find the selected file
     const selectedFile = files.find(file => file.id === fileId);
     if (!selectedFile) return;
     
-    // If file has a predefined audioUrl, use it directly
     if (selectedFile.audioUrl) {
       setIsConverting(false);
       setAudioUrl(selectedFile.audioUrl);
       return;
     }
     
-    // Otherwise proceed with conversion
     setIsConverting(true);
     setAudioUrl(null);
     
@@ -77,20 +70,16 @@ const Index = () => {
     try {
       const content = await readFileAsText(file);
       
-      // Create a new file object
       const newFile: SourceFile = {
         id: Date.now().toString(),
         name: file.name,
         content
       };
       
-      // Add to files list
       setFiles(prevFiles => [...prevFiles, newFile]);
       
-      // Select and convert the new file
       setActiveFileId(newFile.id);
       
-      // Start conversion
       setIsConverting(true);
       setAudioUrl(null);
       
@@ -112,10 +101,8 @@ const Index = () => {
 
   const handleAddAudioUrl = (url: string, name: string) => {
     try {
-      // Validate the URL (simple check)
-      new URL(url); // This will throw if URL is invalid
+      new URL(url);
       
-      // Create a new audio file entry
       const newFile: SourceFile = {
         id: Date.now().toString(),
         name: name,
@@ -123,10 +110,8 @@ const Index = () => {
         audioUrl: url
       };
       
-      // Add to files list
       setFiles(prevFiles => [...prevFiles, newFile]);
       
-      // Select the new file
       setActiveFileId(newFile.id);
       setAudioUrl(url);
       
@@ -137,7 +122,6 @@ const Index = () => {
     }
   };
 
-  // Get the active file for the audio player
   const activeFile = activeFileId ? files.find(file => file.id === activeFileId) : null;
   const activeFileName = activeFile?.name || 'Audio';
   const activeContent = activeFile?.content || '';
