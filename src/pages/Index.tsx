@@ -115,6 +115,9 @@ const Index = () => {
       // Validate the URL (simple check)
       new URL(url); // This will throw if URL is invalid
       
+      // Test if the URL is accessible by creating a temporary audio element
+      const testAudio = new Audio();
+      
       // Create a new audio file entry
       const newFile: SourceFile = {
         id: Date.now().toString(),
@@ -131,6 +134,15 @@ const Index = () => {
       setAudioUrl(url);
       
       toast.success(`Added "${name}" successfully!`);
+      
+      // Add event listener to test loading
+      testAudio.addEventListener('error', () => {
+        toast.warning("Audio might not be playable. Please check if the URL is correct and accessible.");
+      });
+      
+      // Set the source and load
+      testAudio.src = url;
+      testAudio.load();
     } catch (error) {
       console.error('Invalid URL:', error);
       toast.error('Please enter a valid audio URL');

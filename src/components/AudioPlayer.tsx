@@ -23,15 +23,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const intervalRef = useRef<number | null>(null);
   const [activeSubtitles, setActiveSubtitles] = useState(true);
   
-  // For synchronized subtitles
   const [subtitleSegments, setSubtitleSegments] = useState<string[]>([]);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const subtitlesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Process subtitles into segments
   useEffect(() => {
     if (subtitles) {
-      // Split text into sentences or segments
       const segments = subtitles
         .replace(/([.!?])\s+/g, "$1\n")
         .split('\n')
@@ -46,13 +43,18 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (audioUrl) {
       console.log("Setting audio source to:", audioUrl);
       if (audioRef.current) {
-        audioRef.current.src = audioUrl;
-        audioRef.current.load();
-        
-        // Reset player state
-        setIsPlaying(false);
-        setProgress(0);
-        setCurrentSegmentIndex(0);
+        try {
+          const cleanUrl = audioUrl.trim();
+          audioRef.current.src = cleanUrl;
+          audioRef.current.load();
+          
+          setIsPlaying(false);
+          setProgress(0);
+          setCurrentSegmentIndex(0);
+        } catch (error) {
+          console.error("Error setting audio source:", error);
+          toast.error("Failed to set audio source");
+        }
       }
     }
 
@@ -70,6 +72,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         if (playPromise !== undefined) {
           playPromise.catch(error => {
             console.error("Audio playback failed:", error);
+            toast.error("Failed to play audio. Please check the URL format.");
             setIsPlaying(false);
           });
         }
@@ -94,9 +97,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       setProgress(audioRef.current.currentTime);
       setDuration(audioRef.current.duration);
       
-      // Update subtitle segment based on progress
       if (subtitleSegments.length > 0) {
-        // Simple approach: change segment every few seconds
         const segmentDuration = audioRef.current.duration / subtitleSegments.length;
         const newSegmentIndex = Math.min(
           Math.floor(audioRef.current.currentTime / segmentDuration),
@@ -106,7 +107,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         if (newSegmentIndex !== currentSegmentIndex) {
           setCurrentSegmentIndex(newSegmentIndex);
           
-          // Scroll the active segment into view
           if (subtitlesContainerRef.current) {
             const segments = subtitlesContainerRef.current.querySelectorAll('.subtitle-segment');
             if (segments[newSegmentIndex]) {
@@ -175,8 +175,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           toast.error("Failed to load audio file. Please check the URL and try again.");
           setIsPlaying(false);
         }}
+        preload="metadata"
       >
         <source src={audioUrl || ''} type="audio/mpeg" />
+        <source src={audioUrl || ''} type="audio/mp3" />
+        <source src={audioUrl || ''} type="audio/wav" />
+        <source src={audioUrl || ''} type="audio/ogg" />
         Your browser does not support the audio element.
       </audio>
       
