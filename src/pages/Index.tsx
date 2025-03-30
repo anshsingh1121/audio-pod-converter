@@ -19,7 +19,7 @@ const Index = () => {
       id: '2', 
       name: 'DEMO AUDIO', 
       content: 'This is a demo audio file with pre-loaded content.',
-      audioUrl: 'https://drive.google.com/uc?export=download&id=1jF6o5cHl3sPvFONt59VqbIZyrXVOiyyu'
+      audioUrl: 'https://dl.dropboxusercontent.com/scl/fi/lt7m0pb6ctc5eze7xgsie/combined_Conversation.mp3'
     }
   ]);
   const [activeFileId, setActiveFileId] = useState<string | null>('2');
