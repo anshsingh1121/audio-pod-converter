@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { toast } from "sonner";
 
@@ -19,7 +20,7 @@ const Index = () => {
       id: '2', 
       name: 'DEMO AUDIO', 
       content: 'This is a demo audio file with pre-loaded content.',
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+      audioUrl: 'https://drive.google.com/uc?export=download&id=150-O1iKysYz9VGVfojgCm8-M6sLl-oDT'
     }
   ]);
   const [activeFileId, setActiveFileId] = useState<string | null>('2');
