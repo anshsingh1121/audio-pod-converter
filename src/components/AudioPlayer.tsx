@@ -157,7 +157,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   return (
     <div className="w-full max-w-md mx-auto mt-6 bg-white rounded-lg p-4 shadow-sm animate-slide-up" style={{ animationDelay: '0.5s' }}>
-      <audio ref={audioRef} onEnded={() => setIsPlaying(false)} onLoadedMetadata={updateProgress}>
+      <audio key={audioUrl} ref={audioRef} onEnded={() => setIsPlaying(false)} onLoadedMetadata={updateProgress}>
         <source src={audioUrl || ''} type="audio/mpeg" />
       </audio>
       
