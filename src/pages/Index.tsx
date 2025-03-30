@@ -19,7 +19,7 @@ const Index = () => {
       id: '2', 
       name: 'DEMO AUDIO', 
       content: 'This is a demo audio file with pre-loaded content.',
-      audioUrl: 'https://dl.dropboxusercontent.com/scl/fi/lt7m0pb6ctc5eze7xgsie/combined_Conversation.mp3'
+      audioUrl: 'https://cors-anywhere.herokuapp.com/https://dl.dropboxusercontent.com/scl/fi/lt7m0pb6ctc5eze7xgsie/combined_Conversation.mp3'
     }
   ]);
   const [activeFileId, setActiveFileId] = useState<string | null>('2');
