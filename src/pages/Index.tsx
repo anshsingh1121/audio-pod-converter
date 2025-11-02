@@ -19,7 +19,13 @@ const Index = () => {
       id: '2', 
       name: 'DEMO AUDIO', 
       content: 'This is a demo audio file with pre-loaded content.',
-      audioUrl: 'https://res.cloudinary.com/dpyhcwi93/video/upload/v1743317667/combined_Conversation_vzkmvp.mp3'
+      audioUrl: '/demo-audio.mp3'
+    },
+    {
+      id: '3',
+      name: 'Regional Language Audio',
+      content: 'Regional language narration',
+      audioUrl: 'https://res.cloudinary.com/dpyhcwi93/video/upload/v1743331234/regional_audio.mp3'
     }
   ]);
   const [activeFileId, setActiveFileId] = useState<string | null>('2');
